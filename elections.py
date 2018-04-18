@@ -7,7 +7,7 @@ def borda(candidates, ballots):
         for i in range(len(ballot)):
             # Assuming ballots are valid
             candidate = ballot[i]
-            scores[candidate] += len(ballot) - i
+            scores[candidate] += len(ballot) - i - 1
     
     # Report winner
     return max(scores.keys(), key=(lambda key: scores[key]))
