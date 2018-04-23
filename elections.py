@@ -9,18 +9,22 @@ def borda(candidates, ballots):
             candidate = ballot[i]
             scores[candidate] += len(ballot) - i - 1
     
-    # Report winner
-    return max(scores.keys(), key=(lambda key: scores[key]))
+    # Report winner, breaking ties lexicographically
+    return min(scores.keys(), key=(lambda key: (-scores[key], key)))
 
 # Simple plurality
-def plurality(candidates, ballots):
+def plurality_counts(candidates, ballots):
     scores = dict((candidate, 0) for candidate in candidates)
     for ballot in ballots:
         candidate = ballot[0]
         scores[candidate] += 1
     
-    # Report winner
-    return max(scores.keys(), key=(lambda key: scores[key]))
+    return scores
+    
+def plurality(candidates, ballots):
+    # Report winner, breaking ties lexicographically
+    scores = plurality_counts(candidates, ballots)
+    return min(scores.keys(), key=(lambda key: (-scores[key], key)))
 
 # Copeland scores
 def copeland(candidates, ballots):
@@ -49,8 +53,8 @@ def copeland(candidates, ballots):
             scores[pair[0]] += 0.5
             scores[pair[1]] += 0.5
 
-    # Report winner
-    return max(scores.keys(), key=(lambda key: scores[key]))
+    # Report winner, breaking ties lexicographically
+    return min(scores.keys(), key=(lambda key: (-scores[key], key)))
 
 # Single Transferable Vote
 def stv(candidates, ballots):
@@ -83,5 +87,5 @@ def stv(candidates, ballots):
                 candidate = ballot[curr_votes[ballot_index]]
                 scores[candidate] += 1
 
-    # Report winner
-    return max(scores.keys(), key=(lambda key: scores[key]))
+    # Report winner, breaking ties lexicographically
+    return min(scores.keys(), key=(lambda key: (-scores[key], key)))
