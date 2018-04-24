@@ -38,7 +38,7 @@ def borda_scores(candidates, ballots):
     return scores
 
 # Returns Borda ratio for the specified candidate
-def get_borda_ratio(candidates, ballots, spec_candidate)
+def get_borda_ratio(candidates, ballots, spec_candidate):
     scores = borda_scores(candidates, ballots)
     max_score = max(scores.values())
     return scores[spec_candidate] / max_score
