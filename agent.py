@@ -108,6 +108,25 @@ class LearningAgent(Agent):
             self._exp_util[self._prev_vote] = self._learning_rate * self._util[winner] + \
                 (1 - self._learning_rate) * self._exp_util[self._prev_vote]
 
+class LearningBestResponseAgent(Agent):
+    def __init__(self, pref_order, util_func, learning_rate = 0.1):
+        super().__inti__(pref_order, util_func)
+        self._learning_rate = learning_rate
+    
+    def adapt(self, results):
+        manip_results = copy.deepcopy(results)
+        for candidate in self._pref_order:
+            #Try different candidate, fixing other votes\
+            manip_results[self.__prev_vote] -= 1
+            manip_results[candidate] += 1
+            #determine utility
+            winner = min(manip_results.keys(), key=(lambda key: (-results[key], key)))
+            self._exp_util[candidate] = self._learning_rate * self._util[winner] + \
+                (1 - self._learning_rate) * self._exp_util[candidate]
+            #reset votes
+            manip_results[self.__prev_vote] += 1
+            manip_results[candidate] -= 1
+            
 class LearningBayesianAgent(Agent):
     def __init__(self, pref_order, util_func, learning_rate = 0.1):
         super().__init__(pref_order, util_func)
