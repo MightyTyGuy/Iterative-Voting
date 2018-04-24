@@ -2,7 +2,7 @@ import random
 
 # Create a profile of n ballots with 
 # Impartial Culture Assumption
-def impartial_culture(candidates, n):
+def impartial_culture(candidates, n, alpha):
     return [random.sample(candidates, len(candidates)) for _ in range(n)]
 
 # Create a profile of n ballots with
