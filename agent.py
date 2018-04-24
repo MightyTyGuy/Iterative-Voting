@@ -1,11 +1,24 @@
 from abc import ABC, abstractmethod
+import math
 import copy
+
+# Linear utility function
+def linear_util(index, n):
+    return 1 - index / (n-1)
+
+# Exponential utility function
+def exp_util(index, n):
+    return 1 / 2**(index)
+
+# Logistic utility function
+def log_util(index, n, k = 2):
+    return 1 - 1 / (1 + math.exp(-k * (index - (n-1) / 2)))
 
 class Agent(ABC):
     def __init__(self, pref_order, util_func):
         self._pref_order = pref_order
         self._util_func = util_func
-        self._util = dict((pref_order[i], self._util_func(i)) for i in range(len(pref_order)))
+        self._util = dict((pref_order[i], self._util_func(i, len(pref_order))) for i in range(len(pref_order)))
         self._exp_util = copy.deepcopy(self._util)
         self._prev_vote = None
         self._to_vote = None
@@ -108,6 +121,8 @@ class LearningBayesianAgent(Agent):
         for candidate in self._pref_order:
             self._exp_util[candidate] = self._util[candidate] * self.exp_prop()[candidate] 
     
+    # Return the expected value of the current Dirichlet distribution
+    # for the expected proportion of votes for each candidate
     def exp_prop(self):
         sum_alpha = sum(self._Dirichlet_params.values())
         return dict((candidate, self._Dirichlet_params[candidate] / sum_alpha) for candidate in self._Dirichlet_params)
