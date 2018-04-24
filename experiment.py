@@ -28,36 +28,46 @@ class experiment:
         self._cond_iters = []
         self._results = []
         
-    def getStaticResults(self, ballots):
+    def getStaticResults(self):
+        #run borda election
+        winner = elections.borda(self._candidates, self._ballots)
+        #determine condorcet
+        if winner == self._cond_winner:
+            self._cond_static['borda'] = True
+        else:
+            self._cond_static['borda'] = False
+        #get borda score for winner
+        self._borda_static['borda'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
+        
         #run plurality election
-        winner = elections.plurality(self._candidates, ballots)
+        winner = elections.plurality(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
             self._cond_static['plurality'] = True
         else:
             self._cond_static['plurality'] = False
         #get borda score for winner
-        self._borda_static['plurality'] = evaluation.get_borda_ratio(self._candidates, ballots, winner)
+        self._borda_static['plurality'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
         #run copeland election
-        winner = elections.copeland(self._candidates, ballots)
+        winner = elections.copeland(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
             self._cond_static['copeland'] = True
         else:
             self._cond_static['copeland'] = True
         #get borda score
-        self._borda_static['copeland'] = evaluation.get_borda_ratio(self._candidates, ballots, winner)
+        self._borda_static['copeland'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
         #run stv election
-        winner = elections.stv(self._candidates, ballots)
+        winner = elections.stv(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
             self._cond_static['stv'] = True
         else:
             self._cond_static['stv'] = True
         #get borda score
-        self._borda_static['stv'] = evaluation.get_borda_ratio(self._candidates, ballots, winner)
+        self._borda_static['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
     def iterate(self, iterations = 1):
         for i in range(iterations):
