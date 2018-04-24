@@ -1,6 +1,6 @@
 # Return a Condorcet winner if one exists
 # or None otherwise
-def condorcet(candidates, ballots):
+def get_condorcet_winner(candidates, ballots):
     pair_votes = {}
 
     # Count the number of ballots where i beats j for each pair
@@ -26,24 +26,6 @@ def condorcet(candidates, ballots):
     
     return None
 
-# Return Condorcet Efficiency Ratio
-# Takes a candidate list,
-# a list of profiles and a list of winners
-def condorcet_efficiency(candidates, profiles, winners):
-    assert len(profiles) == len(winners)
-    
-    cond_elections = []
-
-    for i in range(len(profiles)):
-        cond_winner = condorcet(candidates, profiles[i])
-        if cond_winner is not None:
-            if cond_winner == winners[i]:
-                cond_elections.append(True)
-            else:
-                cond_elections.append(False)
-    
-    return sum(cond_elections) / len(cond_elections)
-
 # Returns Borda score for each candidate
 def borda_scores(candidates, ballots):
     scores = dict((candidate, 0) for candidate in candidates)
@@ -55,19 +37,8 @@ def borda_scores(candidates, ballots):
 
     return scores
 
-# Return the average ratio of Borda score 
-# to maximal Borda score among all candidates
-# across all profiles
-def avg_borda_ratio(candidates, profiles, winners):
-    assert len(profiles) == len(winners)
-
-    ratios = []
-
-    for i in range(len(profiles)):
-        scores = borda_scores(candidates, profiles[i])
-        max_score = max(scores.values())
-        winner_score = scores[winners[i]]
-
-        ratios.append(winner_score / max_score)
-
-    return sum(ratios) / len(ratios)
+# Returns Borda ratio for the specified candidate
+def get_borda_ratio(candidates, ballots, spec_candidate)
+    scores = borda_scores(candidates, ballots)
+    max_score = max(scores.values())
+    return scores[spec_candidate] / max_score
