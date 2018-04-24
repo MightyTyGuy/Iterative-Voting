@@ -1,11 +1,24 @@
 from abc import ABC, abstractmethod
+import math
 import copy
+
+# Linear utility function
+def linear_util(index, n):
+    return 1 - index / (n-1)
+
+# Exponential utility function
+def exp_util(index, n):
+    return 1 / 2**(index)
+
+# Logistic utility function
+def log_util(index, n, k = 2):
+    return 1 - 1 / (1 + math.exp(-k * (index - (n-1) / 2)))
 
 class Agent(ABC):
     def __init__(self, pref_order, util_func):
         self._pref_order = pref_order
         self._util_func = util_func
-        self._util = dict((pref_order[i], self._util_func(i)) for i in range(len(pref_order)))
+        self._util = dict((pref_order[i], self._util_func(i, len(pref_order))) for i in range(len(pref_order)))
         self._exp_util = copy.deepcopy(self._util)
         self._prev_vote = None
         self._to_vote = None
@@ -114,6 +127,25 @@ class LearningBestResponseAgent(Agent):
             manip_results[self.__prev_vote] += 1
             manip_results[candidate] -= 1
 
+class LearningBestResponseAgent(Agent):
+    def __init__(self, pref_order, util_func, learning_rate = 0.1):
+        super().__inti__(pref_order, util_func)
+        self._learning_rate = learning_rate
+    
+    def adapt(self, results):
+        manip_results = copy.deepcopy(results)
+        for candidate in self._pref_order:
+            #Try different candidate, fixing other votes\
+            manip_results[self.__prev_vote] -= 1
+            manip_results[candidate] += 1
+            #determine utility
+            winner = min(manip_results.keys(), key=(lambda key: (-results[key], key)))
+            self._exp_util[candidate] = self._learning_rate * self._util[winner] + \
+                (1 - self._learning_rate) * self._exp_util[candidate]
+            #reset votes
+            manip_results[self.__prev_vote] += 1
+            manip_results[candidate] -= 1
+            
 class LearningBayesianAgent(Agent):
     def __init__(self, pref_order, util_func, learning_rate = 0.1):
         super().__init__(pref_order, util_func)
@@ -127,6 +159,8 @@ class LearningBayesianAgent(Agent):
         for candidate in self._pref_order:
             self._exp_util[candidate] = self._util[candidate] * self.exp_prop()[candidate] 
     
+    # Return the expected value of the current Dirichlet distribution
+    # for the expected proportion of votes for each candidate
     def exp_prop(self):
         sum_alpha = sum(self._Dirichlet_params.values())
         return dict((candidate, self._Dirichlet_params[candidate] / sum_alpha) for candidate in self._Dirichlet_params)
