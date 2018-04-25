@@ -45,11 +45,21 @@ class experiment_group:
         self._borda_static['stv'] = self._borda_static['stv'] / self._experiments
         self._borda_iter = [x / self._experiments for x in self._borda_iter]
     
-    def visualize(self):
+    def visualize(self, title = ""):
         x = range(self._iterations)
         y_0 = [self._borda_static['borda']] * self._iterations
         y_1 = [self._borda_static['copeland']] * self._iterations
         y_2 = [self._borda_static['plurality']] * self._iterations
         y_3 = [self._borda_static['stv']] * self._iterations
         y_4 = self._borda_iter
-        plt.plot(x, y_0, x, y_1, x, y_2, x, y_3, x, y_4)
+        plt.plot(x, y_0, label = "Borda")
+        plt.plot(x, y_1, label = "Copeland")
+        plt.plot(x, y_2, label = "Plurality")
+        plt.plot(x, y_3, label = "STV")
+        plt.plot(x, y_4, label = "Iterative")
+        plt.legend()
+        plt.xlabel('Iterations')
+        plt.ylabel('Borda Score')
+        plt.title(title)
+        plt.show()
+        
