@@ -15,8 +15,14 @@ class experiment_group:
         self._alpha = alpha
         #create empty list to hold all experiments
         self._list = []
-        self._borda_static = {'borda':0, 'copeland':0,'plurality':0, 'stv': 0}
+        self._borda_static = {'borda': 0, 'copeland':0,'plurality':0, 'stv': 0}
+        #keep track of average borda score at each iteration
         self._borda_iter = [0] * self._iterations
+        #keep track of total number of experiments with condorcet winner
+        self._cond_total = 0
+        #keep track of condorcet efficiency
+        self._cond_static = {'borda': 0, 'copeland':0,'plurality':0, 'stv': 0}
+        self._cond_iters = [0] * self._iterations
         self.run()
         self.computeStats()
         
@@ -34,9 +40,29 @@ class experiment_group:
             self._borda_static['copeland'] += e._borda_static['copeland']
             self._borda_static['plurality'] += e._borda_static['plurality']
             self._borda_static['stv'] += e._borda_static['stv']
-            for i in range(self._iterations):
-                #get the borda at each iteration
-                self._borda_iter[i] += e._borda_iters[i]
+            #determine if there is a condorcet winner
+            if e._isCond:
+                #keep track of total experiments with condorcet winner
+                self._cond_total += 1
+                #keep track of how many of each election type get the condorcet winner
+                if e._cond_static['borda']:
+                    self._cond_static['borda'] += 1
+                if e._cond_static['copeland']:
+                    self._cond_static['copeland'] += 1
+                if e._cond_static['plurality']:
+                    self._cond_static['plurality'] += 1
+                if e._cond_static['stv']:
+                    self._cond_static['stv'] += 1
+                #keep track of which iteration picked condorcet winner
+                for i in range(self._iterations):
+                    if e._cond_iters[i]:
+                        self._cond_iters[i] += 1
+                        self._borda_iter[i] += e._borda_iters[i]
+            else:
+                #this if else statement is just to not have to loop through twice
+                for i in range(self._iterations):
+                    #get the borda at each iteration
+                    self._borda_iter[i] += e._borda_iters[i]
             
         #turn everything into an average
         self._borda_static['borda'] = self._borda_static['borda'] / self._experiments
@@ -44,8 +70,13 @@ class experiment_group:
         self._borda_static['plurality'] = self._borda_static['plurality'] / self._experiments
         self._borda_static['stv'] = self._borda_static['stv'] / self._experiments
         self._borda_iter = [x / self._experiments for x in self._borda_iter]
-    
-    def visualize(self, title = ""):
+        self._cond_static['borda'] = self._cond_static['borda'] / self._cond_total
+        self._cond_static['copeland'] = self._cond_static['copeland'] / self._cond_total
+        self._cond_static['plurality'] = self._cond_static['plurality'] / self._cond_total
+        self._cond_static['stv'] = self._cond_static['stv'] / self._cond_total
+        self._cond_iters = [x / self._cond_total for x in self._cond_iters]
+        
+    def visualize_borda(self, title = ""):
         x = range(self._iterations)
         y_0 = [self._borda_static['borda']] * self._iterations
         y_1 = [self._borda_static['copeland']] * self._iterations
@@ -62,4 +93,21 @@ class experiment_group:
         plt.ylabel('Borda Score')
         plt.title(title)
         plt.show()
-        
+    
+    def visualize_condorcet(self, title = ""):
+        x = range(self._iterations)
+        y_0 = [self._cond_static['borda']] * self._iterations
+        y_1 = [self._cond_static['copeland']] * self._iterations
+        y_2 = [self._cond_static['plurality']] * self._iterations
+        y_3 = [self._cond_static['stv']] * self._iterations
+        y_4 = self._cond_iters
+        plt.plot(x, y_0, label = "Borda")
+        plt.plot(x, y_1, label = "Copeland")
+        plt.plot(x, y_2, label = "Plurality")
+        plt.plot(x, y_3, label = "STV")
+        plt.plot(x, y_4, label = "Iterative")
+        plt.legend()
+        plt.xlabel('Iterations')
+        plt.ylabel('Condorcet Efficiency')
+        plt.title(title)
+        plt.show()
