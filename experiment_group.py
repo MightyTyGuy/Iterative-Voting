@@ -1,9 +1,10 @@
 from experiment import experiment
+import agent
 from matplotlib import pyplot as plt
 
 class experiment_group:
     
-    def __init__(self, agent_type, agent_util, generator, n, c, iterations, experiments, alpha = None):
+    def __init__(self, agent_type, agent_util, generator, n, c, iterations, experiments, alpha = None, write = False, meta_file = None, results_file = None, exp_num = None):
         self._agent = agent_type
         self._util = agent_util
         self._generator = generator
@@ -25,6 +26,14 @@ class experiment_group:
         self._cond_iters = [0] * self._iterations
         self.run()
         self.computeStats()
+        self._meta_file_name = meta_file
+        self._results_file_name = results_file
+        self._meta = None
+        self._res = None
+        self._expnum = exp_num
+        self._write = write
+        if write:
+            self.writeMeta()
         
     
     def run(self):
@@ -32,6 +41,12 @@ class experiment_group:
             e = experiment(self._agent, self._util, self._generator, self._c, self._n, self._alpha)
             e.iterate(self._iterations)
             self._list.append(e)
+    
+    def writeMeta(self):
+        self._meta = open(self._meta_file_name, 'w')
+        self._meta.write(str(self.exp_num) + " " + self._agent.__name__ + " " + self._util.__name__ + " " + self._generator.__name__ + " " + \
+                         str(self._alpha) + " " + str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + str(self._experiments) + " ")
+        self._res = open(self._results_file_name, 'w')
     
     def computeStats(self):
         for e in self._list:
@@ -75,6 +90,14 @@ class experiment_group:
         self._cond_static['plurality'] = self._cond_static['plurality'] / self._cond_total
         self._cond_static['stv'] = self._cond_static['stv'] / self._cond_total
         self._cond_iters = [x / self._cond_total for x in self._cond_iters]
+        if self._write:
+            self.meta.write(str(self._borda_static['borda']) + " " + str(self._borda_static['copeland']) + " " + str(self._borda_static['plurality']) + " " + \
+                            str(self._borda_static['stv']) + " " + str(e._isCond) + " " + str(self._cond_static['borda']) + " " + \
+                                str(self._cond_static['copeland']) + " " + str(self._cond_static['plurality']) + " " + str(self._cond_static['stv']))
+            for i in range(self.__iterations):
+                self._res.write(str(self._expnum) + " " + str(i) + " " + str(self._borda_iter[i]) + " " + str(self._cond_iters[i]) + "\n")
+            self.meta.close()
+            self.res.close()
         
     def visualize_borda(self, title = "Average Borda Ratio"):
         x = range(self._iterations)
