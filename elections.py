@@ -71,8 +71,8 @@ def stv(candidates, ballots):
     eliminated = []
 
     while max(scores.values()) <= len(ballots) / 2:
-        # Eliminate lowest candidate
-        min_candidate = min(scores.keys(), key=(lambda key: scores[key]))
+        # Eliminate lowest candidate, breaking ties lexicographically
+        min_candidate = max(scores.keys(), key=(lambda key: (-scores[key], key)))
         eliminated.append(min_candidate)
         del scores[min_candidate]
 
