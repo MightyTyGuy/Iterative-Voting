@@ -23,7 +23,7 @@ class experiment:
         self._iterations = 0
         self._borda_static = {}
         self._cond_static = {}
-        self.getStaticResults(self._ballots)
+        self.getStaticResults()
         self._borda_iters = []
         self._cond_iters = []
         self._results = []
@@ -74,7 +74,7 @@ class experiment:
             #determine votes from each agent
             votes = []
             for a in self._agents:
-                votes.append(a.vote())
+                votes.append([a.vote()])
             
             #compute the results of the election
             results = elections.plurality_counts(self._candidates, votes)
