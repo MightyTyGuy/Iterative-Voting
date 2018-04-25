@@ -76,7 +76,7 @@ class experiment_group:
         self._cond_static['stv'] = self._cond_static['stv'] / self._cond_total
         self._cond_iters = [x / self._cond_total for x in self._cond_iters]
         
-    def visualize_borda(self, title = ""):
+    def visualize_borda(self, title = "Average Borda Ratio"):
         x = range(self._iterations)
         y_0 = [self._borda_static['borda']] * self._iterations
         y_1 = [self._borda_static['copeland']] * self._iterations
@@ -94,7 +94,7 @@ class experiment_group:
         plt.title(title)
         plt.show()
     
-    def visualize_condorcet(self, title = ""):
+    def visualize_condorcet(self, title = "Condorcet Efficiency"):
         x = range(self._iterations)
         y_0 = [self._cond_static['borda']] * self._iterations
         y_1 = [self._cond_static['copeland']] * self._iterations
