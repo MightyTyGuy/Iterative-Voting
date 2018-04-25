@@ -55,7 +55,7 @@ class experiment:
         if winner == self._cond_winner:
             self._cond_static['copeland'] = True
         else:
-            self._cond_static['copeland'] = True
+            self._cond_static['copeland'] = False
         #get borda score
         self._borda_static['copeland'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
@@ -65,7 +65,7 @@ class experiment:
         if winner == self._cond_winner:
             self._cond_static['stv'] = True
         else:
-            self._cond_static['stv'] = True
+            self._cond_static['stv'] = False
         #get borda score
         self._borda_static['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
