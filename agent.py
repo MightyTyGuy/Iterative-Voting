@@ -148,7 +148,7 @@ class LearningBayesianAgent(Agent):
     
     def adapt(self, results):
         # Compute the winner of the plurality election
-        winner = min(results.keys(), key=(lambda key: (-results[key], key)))
+        #winner = min(results.keys(), key=(lambda key: (-results[key], key)))
 
         # Update all candidates using Bayesian update
         for candidate in self._pref_order:
