@@ -14,7 +14,7 @@ meta_file.write("ExpNum " + "AgentType " + "UtilType " + "GenType " + "Alpha " +
                    + "Borda_copeland " + "Borda_plurality " + "Borda_stv " + "Condorcet " + "Cond_borda " + "Cond_copeland " + "Cond_plurality " \
                    + "Cond_stv\n")
 
-res_file.write("ExpNum " + "Iter " + "Borda " + "Cond ")
+res_file.write("ExpNum " + "Iter " + "Borda " + "Cond\n")
 
 meta_file.close()
 res_file.close()

@@ -1,0 +1,1 @@
+ExpNum AgentType UtilType GenType Alpha Voters Candidates Iterations Experiments Borda_borda Borda_copeland Borda_plurality Borda_stv Condorcet Cond_borda Cond_copeland Cond_plurality Cond_stv

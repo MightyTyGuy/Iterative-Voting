@@ -24,8 +24,6 @@ class experiment_group:
         #keep track of condorcet efficiency
         self._cond_static = {'borda': 0, 'copeland':0,'plurality':0, 'stv': 0}
         self._cond_iters = [0] * self._iterations
-        self.run()
-        self.computeStats()
         self._meta_file_name = meta_file
         self._results_file_name = results_file
         self._meta = None
@@ -34,6 +32,8 @@ class experiment_group:
         self._write = write
         if write:
             self.writeMeta()
+        self.run()
+        self.computeStats()
         
     
     def run(self):
