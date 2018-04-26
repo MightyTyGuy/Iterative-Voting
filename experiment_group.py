@@ -45,7 +45,7 @@ class experiment_group:
     def writeMeta(self):
         self._meta = open(self._meta_file_name, 'a')
         self._meta.write(str(self._expnum) + " " + self._agent.__name__ + " " + self._util.__name__ + " " + self._generator.__name__ + " " + \
-                         str(self._alpha) + " " + str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + str(self._experiments) + " ")
+                         str(self._alpha) + " " + str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + str(self._experiments) + "\n")
         self._res = open(self._results_file_name, 'a')
     
     def computeStats(self):
