@@ -177,7 +177,26 @@ def t11():
 
 def t12():
     # Test 3-PragmatistAgent
-    pass
+    candidates = ['j','b','s','k']
+
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['j','s','k','b']
+    b4 = ['s','j','b','k']
+    b5 = ['s','b','j','k']
+    b6 = ['b','s','j','k']
+    b7 = ['b','j','s','k']
+    b8 = ['k','s','j','b']
+
+    p1 = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+    ag1 = agent.PragmatistAgent(b8, agent.linear_util)
+    assert ag1.vote() == 'k'
+    results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
+    ag1.adapt(results)
+    assert ag1.vote() == 's'
+
+
 
 def t13():
     # Test LearningAgent
