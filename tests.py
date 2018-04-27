@@ -114,7 +114,17 @@ def t7():
 
 def t8():
     # Test STV
-    pass
+    candidates = ['j','b','s']
+
+    b1 = ['j','b','s']
+    b2 = ['j','s','b']
+    b3 = ['s','j','b']
+    b4 = ['s','b','j']
+    b5 = ['b','s','j']
+
+    p1 = [b1, b2, b3, b4, b5]
+
+    assert elections.stv(candidates, p1) == 's'
 
 def t9():
     # Test lexicographic tie breaking
@@ -135,8 +145,42 @@ def t9():
     assert elections.copeland(candidates, p1) == 'b'
     assert elections.stv(candidates, p1) == 'b'
 
+def t10():
+    # Test utility functions
+    a = [1, 3/4, 2/4, 1/4, 0]
+    b = [1, 1/2, 1/4, 1/8, 1/16]
+    c = [1 - 1 / (1 + math.exp(-2 * (i - 2))) for i in range(4)]
+
+    for i in range(4):
+        assert math.isclose(agent.linear_util(i, 5), a[i])
+        assert math.isclose(agent.exp_util(i, 5), b[i])
+        assert math.isclose(agent.log_util(i, 5), c[i])
+
+def t11():
+    # Test BestResponseAgent
+    pass
+
+def t12():
+    # Test 3-PragmatistAgent
+    pass
+
+def t13():
+    # Test LearningAgent
+    pass
+
+def t14():
+    # Test LearningBestResponseAgent
+    pass
+
+def t15():
+    # Test LearningBayesianAgent
+    pass
+
 if __name__ == '__main__':
-    tests = [t1, t2 ,t3, t4, t5, t6, t7, t8, t9]
+    tests = [t1, t2,  t3,  t4,\
+             t5, t6,  t7,  t8,\
+             t9, t10, t11, t12,\
+             t13, t14, t15]
 
     for test in tests:
         test()
