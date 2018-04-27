@@ -157,25 +157,68 @@ def t10():
         assert math.isclose(agent.log_util(i, 5), c[i])
 
 def t11():
-    # Test BestResponseAgent
+    # Test BestResponseAgent (Non-truth-biased)
     candidates = ['j','b','s']
 
-    b1 = ['j','b','s']
-    b2 = ['j','s','b']
-    b3 = ['s','j','b']
-    b4 = ['s','b','j']
-    b5 = ['b','s','j']
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['s','j','b','k']
+    b4 = ['s','b','j','k']
+    b5 = ['b','s','j','k']
+    b6 = ['k','j','s','b']
 
-    p1 = [b1, b2, b3, b4, b5]
+    p1 = [b1, b2, b3, b4, b5, b6]
 
     ag1 = agent.BestResponseAgent(b5, agent.linear_util)
+    ag2 = agent.BestResponseAgent(b6, agent.linear_util)
 
     assert ag1.vote() == 'b'
-    results = {'j': 2, 's': 2, 'b': 1}
+    assert ag2.vote() == 'k'
+    results = {'j': 2, 's': 2, 'b': 1, 'k': 1}
     ag1.adapt(results)
     assert ag1.vote() == 's'
 
+    results = {'j': 2, 's': 3, 'b': 0, 'k': 1}
+    ag2.adapt(results)
+    assert ag2.vote() == 'j'
+
+    results = {'j':3, 's': 3, 'b': 0, 'k': 0}
+    ag1.adapt(results)
+    # Non-truth bias: Maintain vote
+    assert ag1.vote() == 's'
+
 def t12():
+    # Test BestResponseAgent (Truth Biased)
+    candidates = ['j','b','s']
+
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['s','j','b','k']
+    b4 = ['s','b','j','k']
+    b5 = ['b','s','j','k']
+    b6 = ['k','j','s','b']
+
+    p1 = [b1, b2, b3, b4, b5, b6]
+
+    ag1 = agent.BestResponseAgent(b5, agent.linear_util, True)
+    ag2 = agent.BestResponseAgent(b6, agent.linear_util, True)
+
+    assert ag1.vote() == 'b'
+    assert ag2.vote() == 'k'
+    results = {'j': 2, 's': 2, 'b': 1, 'k': 1}
+    ag1.adapt(results)
+    assert ag1.vote() == 's'
+
+    results = {'j': 2, 's': 3, 'b': 0, 'k': 1}
+    ag2.adapt(results)
+    assert ag2.vote() == 'j'
+
+    results = {'j':3, 's': 3, 'b': 0, 'k': 0}
+    ag1.adapt(results)
+    # Truth bias
+    assert ag1.vote() == 'b'
+
+def t13():
     # Test 3-PragmatistAgent
     candidates = ['j','b','s','k']
 
@@ -196,25 +239,55 @@ def t12():
     ag1.adapt(results)
     assert ag1.vote() == 's'
 
-
-
-def t13():
-    # Test LearningAgent
-    pass
-
 def t14():
+    # Test LearningAgent
+    candidates = ['j','b','s','k']
+
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['j','s','k','b']
+    b4 = ['s','j','b','k']
+    b5 = ['s','b','j','k']
+    b6 = ['b','s','j','k']
+    b7 = ['b','j','s','k']
+    b8 = ['k','s','j','b']
+
+    p1 = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+    ag1 = agent.LearningAgent(b8, agent.linear_util)
+    util = {'k': 1, 's': 2/3, 'j': 1/3, 'b': 0}
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
+
+    results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
+    ag1.adapt(results)
+
+    util = {'k': 28/30, 's': 2/3, 'j': 1/3, 'b': 0}
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
+
+    ag1.adapt(results)
+
+    util = {'k': 131/150, 's': 2/3, 'j': 1/3, 'b': 0}
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
+
+def t15():
     # Test LearningBestResponseAgent
     pass
 
-def t15():
+def t16():
     # Test LearningBayesianAgent
     pass
 
 if __name__ == '__main__':
-    tests = [t1, t2,  t3,  t4,\
-             t5, t6,  t7,  t8,\
-             t9, t10, t11, t12,\
-             t13, t14, t15]
+    tests = [t1,  t2,  t3,  t4,\
+             t5,  t6,  t7,  t8,\
+             t9,  t10, t11, t12,\
+             t13, t14, t15, t16]
 
     for test in tests:
         test()
