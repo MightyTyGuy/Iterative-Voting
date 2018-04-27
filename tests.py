@@ -158,7 +158,22 @@ def t10():
 
 def t11():
     # Test BestResponseAgent
-    pass
+    candidates = ['j','b','s']
+
+    b1 = ['j','b','s']
+    b2 = ['j','s','b']
+    b3 = ['s','j','b']
+    b4 = ['s','b','j']
+    b5 = ['b','s','j']
+
+    p1 = [b1, b2, b3, b4, b5]
+
+    ag1 = agent.BestResponseAgent(b5, agent.linear_util)
+
+    assert ag1.vote() == 'b'
+    results = {'j': 2, 's': 2, 'b': 1}
+    ag1.adapt(results)
+    assert ag1.vote() == 's'
 
 def t12():
     # Test 3-PragmatistAgent
