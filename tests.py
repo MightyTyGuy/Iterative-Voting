@@ -263,17 +263,31 @@ def t14():
     results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
     ag1.adapt(results)
 
-    util = {'k': 28/30, 's': 2/3, 'j': 1/3, 'b': 0}
+    new_util = {'k': 28/30, 's': 2/3, 'j': 1/3, 'b': 0}
+    # Adjusted Expected Utility, same True Utility
+    for c in new_util:
+        assert math.isclose(new_util[c], ag1._exp_util[c])
     for c in util:
         assert math.isclose(util[c], ag1._util[c])
     assert ag1.vote() == 'k'
 
     ag1.adapt(results)
 
-    util = {'k': 131/150, 's': 2/3, 'j': 1/3, 'b': 0}
+    new_util = {'k': 131/150, 's': 2/3, 'j': 1/3, 'b': 0}
+    # Adjusted Expected Utility, same True Utility
+    for c in new_util:
+        assert math.isclose(new_util[c], ag1._exp_util[c])
     for c in util:
         assert math.isclose(util[c], ag1._util[c])
     assert ag1.vote() == 'k'
+
+    # After 7 iterations, agent should change vote
+    for _ in range(2,7):
+        ag1.adapt(results)
+    assert ag1._exp_util['k'] < 2/3
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 's'
 
 def t15():
     # Test LearningBestResponseAgent
