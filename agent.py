@@ -120,7 +120,7 @@ class LearningBestResponseAgent(Agent):
             manip_results[self._prev_vote] -= 1
             manip_results[candidate] += 1
             #determine utility
-            winner = min(manip_results.keys(), key=(lambda key: (-results[key], key)))
+            winner = min(manip_results.keys(), key=(lambda key: (-manip_results[key], key)))
             self._exp_util[candidate] = self._learning_rate * self._util[winner] + \
                 (1 - self._learning_rate) * self._exp_util[candidate]
             #reset votes
@@ -137,14 +137,15 @@ class LearningBayesianAgent(Agent):
         # proportions are the mean of the Dirichlet - alpha_i / sum(alpha_i)
         # Set expected utility accordingly
         self._Dirichlet_params = dict((candidate, 1) for candidate in pref_order)
+        self.update_exp_prop()
         for candidate in self._pref_order:
-            self._exp_util[candidate] = self._util[candidate] * self.exp_prop()[candidate] 
+            self._exp_util[candidate] = self._util[candidate] * self._exp_prop[candidate] 
     
     # Return the expected value of the current Dirichlet distribution
     # for the expected proportion of votes for each candidate
-    def exp_prop(self):
+    def update_exp_prop(self):
         sum_alpha = sum(self._Dirichlet_params.values())
-        return dict((candidate, self._Dirichlet_params[candidate] / sum_alpha) for candidate in self._Dirichlet_params)
+        self._exp_prop = dict((candidate, self._Dirichlet_params[candidate] / sum_alpha) for candidate in self._Dirichlet_params)
     
     def adapt(self, results):
         # Compute the winner of the plurality election
@@ -153,5 +154,8 @@ class LearningBayesianAgent(Agent):
         # Update all candidates using Bayesian update
         for candidate in self._pref_order:
             self._Dirichlet_params[candidate] = results[candidate] + self._Dirichlet_params[candidate]
-            self._exp_util[candidate] = self._learning_rate * self._util[candidate] * self.exp_prop()[candidate] + \
-                (1 - self._learning_rate) * self._exp_util[candidate]
+        self.update_exp_prop()
+        for candidate in self._pref_order:
+            #self._exp_util[candidate] = self._learning_rate * self._util[candidate] * self._exp_prop[candidate] + \
+            #    (1 - self._learning_rate) * self._exp_util[candidate]
+            self._exp_util[candidate] = self._util[candidate] * self._exp_prop[candidate]

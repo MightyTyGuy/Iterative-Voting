@@ -291,11 +291,86 @@ def t14():
 
 def t15():
     # Test LearningBestResponseAgent
-    pass
+    candidates = ['j','b','s','k']
+
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['j','s','k','b']
+    b4 = ['s','j','b','k']
+    b5 = ['s','b','j','k']
+    b6 = ['b','s','j','k']
+    b7 = ['b','j','s','k']
+    b8 = ['k','s','j','b']
+
+    p1 = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+    ag1 = agent.LearningBestResponseAgent(b8, agent.linear_util)
+    util = {'k': 1, 's': 2/3, 'j': 1/3, 'b': 0}
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
+
+    results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
+    ag1.adapt(results)
+
+    new_util = {'k': 14/15, 's': 19/30, 'j': 1/3, 'b': 0}
+    # Adjusted Expected Utility, same True Utility
+    for c in new_util:
+        assert math.isclose(new_util[c], ag1._exp_util[c])
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
+
+    results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
+    ag1.adapt(results)
+
+    new_util = {'k': 131/150, 's': 181/300, 'j': 1/3, 'b': 0}
+    # Adjusted Expected Utility, same True Utility
+    for c in new_util:
+        assert math.isclose(new_util[c], ag1._exp_util[c])
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k'
 
 def t16():
     # Test LearningBayesianAgent
-    pass
+    candidates = ['j','b','s','k']
+
+    b1 = ['j','b','s','k']
+    b2 = ['j','s','b','k']
+    b3 = ['j','s','k','b']
+    b4 = ['s','j','b','k']
+    b5 = ['s','b','j','k']
+    b6 = ['b','s','j','k']
+    b7 = ['b','j','s','k']
+    b8 = ['k','s','j','b']
+
+    p1 = [b1, b2, b3, b4, b5, b6, b7, b8]
+
+    ag1 = agent.LearningBayesianAgent(b8, agent.linear_util)
+    util = {'k': 1, 's': 2/3, 'j': 1/3, 'b': 0}
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+
+    exp_util = {'k': 1/4, 's': 1/6, 'j': 1/12, 'b': 0}
+    for c in exp_util:
+        assert math.isclose(exp_util[c], ag1._exp_util[c])
+    assert ag1.vote() == 'k'
+
+    results = {'j': 3, 's': 2, 'b': 2, 'k': 1}
+    ag1.adapt(results)
+
+    exp_prop = {'k': 2/12, 's': 3/12, 'j': 4/12, 'b': 3/12}
+    for c in exp_prop:
+        assert math.isclose(exp_prop[c], ag1._exp_prop[c])
+
+    new_util = {'k': 2/12, 's': 2/12, 'j': 1/9, 'b': 0}
+    # Adjusted Expected Utility, same True Utility
+    for c in new_util:
+        assert math.isclose(new_util[c], ag1._exp_util[c])
+    for c in util:
+        assert math.isclose(util[c], ag1._util[c])
+    assert ag1.vote() == 'k' or ag1.vote() == 's'
 
 if __name__ == '__main__':
     tests = [t1,  t2,  t3,  t4,\
