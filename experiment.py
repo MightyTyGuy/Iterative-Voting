@@ -1,12 +1,19 @@
 import evaluation
 import elections
+from event import event
+import agent
 
 class experiment:
     
-    def __init__(self, agent_init_func, agent_util_func, generator_func, c, n, alpha = None):
+    def __init__(self, agent_util_func, generator_func, c, n, exp_num, \
+                 exp_rep, meta_file, res_file, iterations, alpha = None):
+        self._iterations = iterations
         self._candidates = list(range(c))
         #generate preference orderings
         self._ballots = generator_func(self._candidates, n, alpha)
+        self._generator = generator_func
+        self._util = agent_util_func
+        self._alpha = alpha
         #get condorcet winner
         self._cond_winner = evaluation.get_condorcet_winner(self._candidates, self._ballots)
         #determine if there is a condorcet winner
@@ -14,88 +21,94 @@ class experiment:
             self._isCond = False
         else:
             self._isCond = True
-        #create agents
-        self._agents = []
-        for b in self._ballots:
-            self._agents.append(agent_init_func(b, agent_util_func))
+        # ExpNum denotes the ID of experiments with the same parameters
+        # ExpRep denotes which repetition of the experiment
+        self._expnum = exp_num
+        self._exprep = exp_rep
         self._c = c
         self._n = n
-        self._iterations = 0
-        self._borda_static = {}
-        self._cond_static = {}
-        self.getStaticResults()
-        self._borda_iters = []
-        self._cond_iters = []
-        self._results = []
-        
+        self._meta = meta_file
+        self._res = res_file
+        self.getStaticResults() #write these to a file
+        self._learning = event(agent.LearningAgent, agent_util_func, 
+                               self._ballots, self._candidates)
+        self._bestresponse = event(agent.BestResponseAgent, agent_util_func, 
+                               self._ballots, self._candidates)
+        self._bayes = event(agent.LearningBayesianAgent, agent_util_func, 
+                               self._ballots, self._candidates)
+        self._learnbr = event(agent.LearningBestResponseAgent, agent_util_func,
+                              self._ballots, self._candidates)
+        self._prag = event(agent.PragmatistAgent, agent_util_func,
+                           self._ballots, self._candidates)
+        self.run()
+    
+    def run(self):
+        res = open(self._res, 'a')
+        for i in range(self._iterations):
+            borda = {}
+            cond = {}
+            borda['learn'], cond['learn'] = self._learning.iterate()
+            borda['bestres'], cond['bestres'] = self._bestresponse.iterate()
+            borda['bayes'], cond['bayes'] = self._bayes.iterate()
+            borda['learnbr'], cond['learnbr'] = self._learnbr.iterate()
+            borda['prag'], cond['prag'] = self._prag.iterate()
+            res.write(str(self._expnum) + " " + str(self._exprep) + " " + str(i) + " " + \
+                      str(borda['learn']) + " " + str(cond['learn']) + " " + \
+                      str(borda['bestres']) + " " + str(cond['bestres']) \
+                      + " " + str(borda['bayes']) + " " + str(cond['bayes']) + " " + \
+                      str(borda['learnbr']) + " " + str(cond['learnbr']) + " " + \
+                      str(borda['prag']) + " " + str(cond['prag']) + "\n")
+            
+    
     def getStaticResults(self):
+        borda = {}
+        cond = {}
+        
         #run borda election
         winner = elections.borda(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
-            self._cond_static['borda'] = True
+            cond['borda'] = True
         else:
-            self._cond_static['borda'] = False
+            cond['borda'] = False
         #get borda score for winner
-        self._borda_static['borda'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
+        borda['borda'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
         #run plurality election
         winner = elections.plurality(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
-            self._cond_static['plurality'] = True
+            cond['plur'] = True
         else:
-            self._cond_static['plurality'] = False
+            cond['plur'] = False
         #get borda score for winner
-        self._borda_static['plurality'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
+        borda['plur'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
         #run copeland election
         winner = elections.copeland(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
-            self._cond_static['copeland'] = True
+            cond['cope'] = True
         else:
-            self._cond_static['copeland'] = False
+            cond['cope'] = False
         #get borda score
-        self._borda_static['copeland'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
+        borda['cope'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
         #run stv election
         winner = elections.stv(self._candidates, self._ballots)
         #determine condorcet
         if winner == self._cond_winner:
-            self._cond_static['stv'] = True
+            cond['stv'] = True
         else:
-            self._cond_static['stv'] = False
+            cond['stv'] = False
         #get borda score
-        self._borda_static['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
+        borda['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
-    def iterate(self, iterations = 1):
-        for i in range(iterations):
-            #determine votes from each agent
-            votes = []
-            for a in self._agents:
-                votes.append([a.vote()])
-            
-            #compute the results of the election
-            results = elections.plurality_counts(self._candidates, votes)
-            
-            #keep track of results at each iteration
-            self._results.append(results)
-            
-            #adapt agents so they respond in future elections
-            for a in self._agents:
-                a.adapt(results)
-            
-            #add iterations just to keep track of it in case we want it
-            self._iterations += iterations
-            
-            #compute the winner of the election
-            winner = min(results.keys(), key=(lambda key: (-results[key], key)))
-            #get borda and condorcet scores
-            self._borda_iters.append(evaluation.get_borda_ratio(self._candidates, self._ballots, winner))
-            if winner == self._cond_winner:
-                self._cond_iters.append(True)
-            else:
-                self._cond_iters.append(False)
-        
-        return results
+        meta = open(self._meta, 'a')
+        meta.write(str(self._expnum) + " " + str(self._exprep) + " " +  self._util.__name__ + \
+                   " " + self._generator.__name__ + " " + str(self._alpha) + " " + \
+                   str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + \
+                   str(borda['borda']) + " " + str(borda['cope']) + " " + str(borda['plur']) + \
+                   " " + str(borda['stv']) + " " + str(self._isCond) + " " + str(cond['borda']) \
+                   + " " + str(cond['cope']) + " " + str(cond['plur']) + " " + \
+                   str(cond['stv']) + "\n")
