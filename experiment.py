@@ -43,7 +43,7 @@ class experiment:
         self.run()
     
     def run(self):
-        with res as open(self._res, 'a'):
+        with open(self._res, 'a') as res:
             for i in range(self._iterations):
                 borda = {}
                 cond = {}
@@ -104,7 +104,7 @@ class experiment:
         #get borda score
         borda['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
-        with meta as open(self._meta, 'a'):
+        with open(self._meta, 'a') as meta:
             meta.write(str(self._expnum) + " " + str(self._exprep) + " " +  self._util.__name__ + \
                        " " + self._generator.__name__ + " " + str(self._alpha) + " " + \
                        str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + \
