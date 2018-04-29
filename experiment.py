@@ -5,8 +5,7 @@ import agent
 
 class experiment:
     
-    def __init__(self, agent_util_func, generator_func, c, n, exp_num, \
-                 exp_rep, meta_file, res_file, iterations, alpha = None):
+    def __init__(self, agent_util_func, generator_func, c, n, iterations, alpha = None):
         self._iterations = iterations
         self._candidates = list(range(c))
         #generate preference orderings
@@ -21,15 +20,8 @@ class experiment:
             self._isCond = False
         else:
             self._isCond = True
-        # ExpNum denotes the ID of experiments with the same parameters
-        # ExpRep denotes which repetition of the experiment
-        self._expnum = exp_num
-        self._exprep = exp_rep
         self._c = c
         self._n = n
-        self._meta = meta_file
-        self._res = res_file
-        self.getStaticResults() #write these to a file
         self._learning = event(agent.LearningAgent, agent_util_func, 
                                self._ballots, self._candidates)
         self._bestresponse = event(agent.BestResponseAgent, agent_util_func, 
@@ -40,11 +32,11 @@ class experiment:
                               self._ballots, self._candidates)
         self._prag = event(agent.PragmatistAgent, agent_util_func,
                            self._ballots, self._candidates)
-        self.run()
     
     def run(self):
-        with open(self._res, 'a') as res:
-            for i in range(self._iterations):
+        borda_list = []
+        cond_list = []
+        for i in range(self._iterations):
                 borda = {}
                 cond = {}
                 borda['learn'], cond['learn'] = self._learning.iterate()
@@ -52,12 +44,9 @@ class experiment:
                 borda['bayes'], cond['bayes'] = self._bayes.iterate()
                 borda['learnbr'], cond['learnbr'] = self._learnbr.iterate()
                 borda['prag'], cond['prag'] = self._prag.iterate()
-                res.write(str(self._expnum) + " " + str(self._exprep) + " " + str(i) + " " + \
-                          str(borda['learn']) + " " + str(cond['learn']) + " " + \
-                          str(borda['bestres']) + " " + str(cond['bestres']) \
-                          + " " + str(borda['bayes']) + " " + str(cond['bayes']) + " " + \
-                          str(borda['learnbr']) + " " + str(cond['learnbr']) + " " + \
-                          str(borda['prag']) + " " + str(cond['prag']) + "\n")
+                borda_list.append(borda)
+                cond_list.append(cond)
+        return borda_list, cond_list
                 
     
     def getStaticResults(self):
@@ -104,11 +93,4 @@ class experiment:
         #get borda score
         borda['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
-        with open(self._meta, 'a') as meta:
-            meta.write(str(self._expnum) + " " + str(self._exprep) + " " +  self._util.__name__ + \
-                       " " + self._generator.__name__ + " " + str(self._alpha) + " " + \
-                       str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + \
-                       str(borda['borda']) + " " + str(borda['cope']) + " " + str(borda['plur']) + \
-                       " " + str(borda['stv']) + " " + str(self._isCond) + " " + str(cond['borda']) \
-                       + " " + str(cond['cope']) + " " + str(cond['plur']) + " " + \
-                       str(cond['stv']) + "\n")
+        return borda, cond

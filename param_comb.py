@@ -4,8 +4,8 @@ import generators
 
 meta_file_name = "meta.txt"
 res_file_name = "results.txt"
-with open(meta_file_name, 'w') as meta_file:
-    with open(res_file_name, 'w') as res_file:
+meta_file = open(meta_file_name, 'w')
+res_file = open(res_file_name, 'w')
 
         #add column labels to files (these will be set up like a csv)
         meta_file.write("ExpNum " + "UtilType " + "GenType " + "Alpha " + "Voters " \
@@ -19,6 +19,9 @@ with open(meta_file_name, 'w') as meta_file:
                         + "Borda_LearningBayesian " + "Cond_LearningBayesian " \
                         + "Borda_LearningBestResponse " + "Cond_LearningBestResponse " \
                         + "Borda_Pragmatist " + "Cond_Pragmatist\n")
+
+meta_file.close()
+res_file.close()
 
 num_reps = 100
 num_iters = 400
