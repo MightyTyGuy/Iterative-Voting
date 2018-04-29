@@ -43,22 +43,22 @@ class experiment:
         self.run()
     
     def run(self):
-        res = open(self._res, 'a')
-        for i in range(self._iterations):
-            borda = {}
-            cond = {}
-            borda['learn'], cond['learn'] = self._learning.iterate()
-            borda['bestres'], cond['bestres'] = self._bestresponse.iterate()
-            borda['bayes'], cond['bayes'] = self._bayes.iterate()
-            borda['learnbr'], cond['learnbr'] = self._learnbr.iterate()
-            borda['prag'], cond['prag'] = self._prag.iterate()
-            res.write(str(self._expnum) + " " + str(self._exprep) + " " + str(i) + " " + \
-                      str(borda['learn']) + " " + str(cond['learn']) + " " + \
-                      str(borda['bestres']) + " " + str(cond['bestres']) \
-                      + " " + str(borda['bayes']) + " " + str(cond['bayes']) + " " + \
-                      str(borda['learnbr']) + " " + str(cond['learnbr']) + " " + \
-                      str(borda['prag']) + " " + str(cond['prag']) + "\n")
-            
+        with res as open(self._res, 'a'):
+            for i in range(self._iterations):
+                borda = {}
+                cond = {}
+                borda['learn'], cond['learn'] = self._learning.iterate()
+                borda['bestres'], cond['bestres'] = self._bestresponse.iterate()
+                borda['bayes'], cond['bayes'] = self._bayes.iterate()
+                borda['learnbr'], cond['learnbr'] = self._learnbr.iterate()
+                borda['prag'], cond['prag'] = self._prag.iterate()
+                res.write(str(self._expnum) + " " + str(self._exprep) + " " + str(i) + " " + \
+                          str(borda['learn']) + " " + str(cond['learn']) + " " + \
+                          str(borda['bestres']) + " " + str(cond['bestres']) \
+                          + " " + str(borda['bayes']) + " " + str(cond['bayes']) + " " + \
+                          str(borda['learnbr']) + " " + str(cond['learnbr']) + " " + \
+                          str(borda['prag']) + " " + str(cond['prag']) + "\n")
+                
     
     def getStaticResults(self):
         borda = {}
@@ -104,11 +104,11 @@ class experiment:
         #get borda score
         borda['stv'] = evaluation.get_borda_ratio(self._candidates, self._ballots, winner)
         
-        meta = open(self._meta, 'a')
-        meta.write(str(self._expnum) + " " + str(self._exprep) + " " +  self._util.__name__ + \
-                   " " + self._generator.__name__ + " " + str(self._alpha) + " " + \
-                   str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + \
-                   str(borda['borda']) + " " + str(borda['cope']) + " " + str(borda['plur']) + \
-                   " " + str(borda['stv']) + " " + str(self._isCond) + " " + str(cond['borda']) \
-                   + " " + str(cond['cope']) + " " + str(cond['plur']) + " " + \
-                   str(cond['stv']) + "\n")
+        with meta as open(self._meta, 'a'):
+            meta.write(str(self._expnum) + " " + str(self._exprep) + " " +  self._util.__name__ + \
+                       " " + self._generator.__name__ + " " + str(self._alpha) + " " + \
+                       str(self._n) + " " + str(self._c) + " " + str(self._iterations) + " " + \
+                       str(borda['borda']) + " " + str(borda['cope']) + " " + str(borda['plur']) + \
+                       " " + str(borda['stv']) + " " + str(self._isCond) + " " + str(cond['borda']) \
+                       + " " + str(cond['cope']) + " " + str(cond['plur']) + " " + \
+                       str(cond['stv']) + "\n")
