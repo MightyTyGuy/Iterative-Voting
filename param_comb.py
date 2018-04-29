@@ -40,7 +40,7 @@ for util in utils:
         for num_voters in voters:
             for num_cands in cands:
                 exp_num += 1
-                print("Current Params:", (util, gen, num_voters, num_cands))
+                print("Current Params:", (util.__name__, gen.__name__, num_voters, num_cands))
                 for rep in range(num_reps):
                     experiment(util, gen, num_voters, num_cands, exp_num, \
                     rep, meta_file_name, res_file_name, num_iters, alpha)
