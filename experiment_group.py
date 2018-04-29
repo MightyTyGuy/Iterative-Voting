@@ -94,6 +94,7 @@ class experiment_group:
             self._meta.write(str(self._borda_static['borda']) + " " + str(self._borda_static['copeland']) + " " + str(self._borda_static['plurality']) + " " + \
                             str(self._borda_static['stv']) + " " + str(e._isCond) + " " + str(self._cond_static['borda']) + " " + \
                                 str(self._cond_static['copeland']) + " " + str(self._cond_static['plurality']) + " " + str(self._cond_static['stv']))
+            self._meta.write("\n")
             for i in range(self._iterations):
                 self._res.write(str(self._expnum) + " " + str(i) + " " + str(self._borda_iter[i]) + " " + str(self._cond_iters[i]) + "\n")
             self._meta.close()
